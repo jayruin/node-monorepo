@@ -1,0 +1,39 @@
+name: Create Release
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "**.ts"
+      - "**.js"
+      - "**.json"
+      - "**.yml"
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          cache: pnpm
+      - run: pnpm run install-all
+      - run: pnpm run build-all
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/
+        id: deployment
+  deploy:
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment
