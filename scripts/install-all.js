@@ -23,6 +23,7 @@ const install = (projectDirectory) => new Promise((resolve, reject) => {
     process.on("error", (error) => reject(error));
 });
 
+await install(repoRoot);
 for (const dirent of await fs.readdir(srcDirectory, { withFileTypes: true, })) {
     if (!dirent.isDirectory()) {
         continue;

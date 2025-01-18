@@ -3,10 +3,12 @@
     "private": true,
     "type": "module",
     "scripts": {
-      "install-all": "node scripts/install-all.js",
-      "build-all": "node scripts/build-all.js",
-      "reset": "git clean -fdx"
+        "install-all": "node scripts/install-all.js",
+        "build-all": "node scripts/build-all.js",
+        "clean-all": "node scripts/clean-all.js",
+        "lock": "node scripts/rm.js pnpm-lock.yaml && pnpm install --lockfile-only",
+        "update": "node scripts/rm.js pnpm-lock.yaml && node scripts/clean-all.js && corepack use pnpm@* && pnpm update --latest",
+        "reset": "git clean -fdx"
     },
     "packageManager": "pnpm@10.0.0+sha512.b8fef5494bd3fe4cbd4edabd0745df2ee5be3e4b0b8b08fa643aa3e4c6702ccc0f00d68fa8a8c9858a735a0032485a44990ed2810526c875e416f001b17df12b"
-  }
-  
+}

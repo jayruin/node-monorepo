@@ -1,0 +1,8 @@
+.page-100vh {
+    height: 100vh;
+}
+
+.page-column {
+    flex: 1 1 calc(100vh * (3 / 4) / 2);
+    min-width: 0px;
+}
