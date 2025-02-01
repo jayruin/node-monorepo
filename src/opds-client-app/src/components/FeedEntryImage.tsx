@@ -4,9 +4,9 @@ import { AspectRatio, Image } from "@mantine/core";
 import { ReactNode } from "react";
 
 interface Props {
-    data: FeedEntryData;
-    fallback: ReactNode;
-    onClick?: () => void;
+    readonly data: FeedEntryData;
+    readonly fallback: ReactNode;
+    readonly onClick?: () => void;
 }
 
 export function FeedEntryImage({ data, fallback, onClick = undefined }: Props) {

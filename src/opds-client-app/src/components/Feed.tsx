@@ -1,17 +1,40 @@
-import { FeedEntryData } from "../data/feed";
-import gridStyles from "../styles/grid.module.css";
-import { FeedEntry } from "./FeedEntry";
+import { FeedData } from "../data/feed";
+import hoverStyles from "../styles/hover.module.css";
+import FeedEntriesGrid from "./FeedEntriesGrid";
+import { Divider, Stack, Title } from "@mantine/core";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
-    data: FeedEntryData[];
+    readonly data: FeedData;
+    readonly version: string;
 }
 
-export default function Feed({ data }: Props) {
+export default function Feed({ data, version }: Props) {
+    const navigate = useNavigate();
     return (
-        <div className={gridStyles.grid}>
-            {data.map((d) => (
-                <FeedEntry key={d.id} data={d} />
+        <Stack>
+            <Title order={1}>{data.title}</Title>
+            <FeedEntriesGrid data={data.entries} version={version} />
+            {data.groups.map((g) => (
+                <Stack key={g.title.concat(g.href ?? "")}>
+                    <Divider />
+                    <Title
+                        order={2}
+                        onClick={() => {
+                            const href = g.href;
+                            if (href) {
+                                navigate(`/${version}/${btoa(href)}`);
+                            }
+                        }}
+                        className={
+                            g.href ? hoverStyles["hover-pointer"] : undefined
+                        }
+                    >
+                        {g.title}
+                    </Title>
+                    <FeedEntriesGrid data={g.entries} version={version} />
+                </Stack>
             ))}
-        </div>
+        </Stack>
     );
 }

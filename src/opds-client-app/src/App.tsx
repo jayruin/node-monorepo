@@ -1,4 +1,4 @@
-import { fetchOpdsV1_2FeedData } from "./data/fetchers";
+import { fetchOpdsV1_2FeedData, fetchOpdsV2_0FeedData } from "./data/fetchers";
 import ConnectPage from "./pages/ConnectPage";
 import { FeedEntryPage } from "./pages/FeedEntryPage";
 import { FeedPage } from "./pages/FeedPage";
@@ -21,6 +21,16 @@ export default function App() {
                             element={
                                 <FeedPage
                                     fetchFeedData={fetchOpdsV1_2FeedData}
+                                    version="v1.2"
+                                />
+                            }
+                        />
+                        <Route
+                            path="/v2.0/:url"
+                            element={
+                                <FeedPage
+                                    fetchFeedData={fetchOpdsV2_0FeedData}
+                                    version="v2.0"
                                 />
                             }
                         />

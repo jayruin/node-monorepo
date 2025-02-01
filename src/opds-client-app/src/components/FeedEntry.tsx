@@ -7,10 +7,11 @@ import { Card, Text, Tooltip } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 
 interface Props {
-    data: FeedEntryData;
+    readonly data: FeedEntryData;
+    readonly version: string;
 }
 
-export function FeedEntry({ data }: Props) {
+export function FeedEntry({ data, version }: Props) {
     const navigationLink = getNavigationLink(data);
     const navigate = useNavigate();
     return (
@@ -33,7 +34,9 @@ export function FeedEntry({ data }: Props) {
                     }
                     onClick={() =>
                         navigationLink
-                            ? navigate(`/v1.2/${btoa(navigationLink.href)}`)
+                            ? navigate(
+                                  `/${version}/${btoa(navigationLink.href)}`,
+                              )
                             : navigate(`/entry/${base64Encode(data)}`)
                     }
                 />

@@ -1,21 +1,23 @@
 import { ErrorMessage } from "../components/ErrorMessage";
 import Feed from "../components/Feed";
 import Loading from "../components/Loading";
-import { FeedEntryData } from "../data/feed";
+import { FeedData } from "../data/feed";
+import { Page } from "./Page";
 import { useQuery } from "@tanstack/react-query";
 import { Navigate, useParams } from "react-router-dom";
 
 interface Props {
-    fetchFeedData: (url: string) => Promise<FeedEntryData[]>;
+    readonly fetchFeedData: (url: string) => Promise<FeedData>;
+    readonly version: string;
 }
 
-export function FeedPage(props: Props) {
+export function FeedPage({ fetchFeedData, version }: Props) {
     const params = useParams();
     const url = params.url;
     const decodedUrl = atob(url ?? "");
     const { isPending, error, data } = useQuery({
-        queryKey: ["v1.2", url],
-        queryFn: () => props.fetchFeedData(decodedUrl),
+        queryKey: [version, url],
+        queryFn: () => fetchFeedData(decodedUrl),
     });
     if (!url) {
         return <Navigate to="/" />;
@@ -26,5 +28,9 @@ export function FeedPage(props: Props) {
     if (error) {
         return <ErrorMessage error={error} />;
     }
-    return <Feed data={data} />;
+    return (
+        <Page title={data.title}>
+            <Feed data={data} version={version} />
+        </Page>
+    );
 }

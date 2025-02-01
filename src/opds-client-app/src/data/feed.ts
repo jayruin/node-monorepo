@@ -1,28 +1,45 @@
+export interface FeedData {
+    readonly title: string;
+    readonly entries: readonly FeedEntryData[];
+    readonly groups: readonly FeedEntryGroup[];
+}
+
 export interface FeedEntryData {
-    id: string;
-    title: string;
-    updated: string;
-    identifier?: string | null;
-    language?: string | null;
-    authors?: string[] | null;
-    contributors?: string[] | null;
-    published?: string | null;
-    rights?: string | null;
-    subjects?: string[] | null;
-    description?: string | null;
-    links: FeedEntryLink[];
+    readonly id: string;
+    readonly title: string;
+    readonly updated: string;
+    readonly identifier?: string | null;
+    readonly languages?: readonly string[] | null;
+    readonly creators?: readonly string[] | null;
+    readonly publishers?: readonly string[] | null;
+    readonly published?: string | null;
+    readonly rights?: string | null;
+    readonly subjects?: readonly string[] | null;
+    readonly description?: string | null;
+    readonly links: readonly FeedEntryLink[];
 }
 
 export interface FeedEntryLink {
-    rel: string;
-    href: string;
-    type: string;
+    readonly rel?: string | null;
+    readonly href: string;
+    readonly type: string;
+}
+
+export interface FeedEntryGroup {
+    readonly title: string;
+    readonly href?: string | null;
+    readonly entries: readonly FeedEntryData[];
 }
 
 export function getImageLink(data: FeedEntryData) {
     return (
         data.links.find((l) => l.rel === "http://opds-spec.org/image") ??
-        data.links.find((l) => l.rel === "http://opds-spec.org/image/thumbnail")
+        data.links.find(
+            (l) => l.rel === "http://opds-spec.org/image/thumbnail",
+        ) ??
+        data.links.find(
+            (l) => l.type === "image/jpeg" || l.type === "image/png",
+        )
     );
 }
 
@@ -31,13 +48,16 @@ export function getNavigationLink(data: FeedEntryData) {
         (l) =>
             l.rel === "subsection" ||
             l.rel === "http://opds-spec.org/sort/new" ||
-            l.rel === "http://opds-spec.org/sort/popular",
+            l.rel === "http://opds-spec.org/sort/popular" ||
+            l.type === "application/opds+json",
     );
 }
 
 export function getAcquisitionLinks(data: FeedEntryData) {
     return data.links.filter(
-        (l) => l.rel === "http://opds-spec.org/acquisition",
+        (l) =>
+            l.rel === "http://opds-spec.org/acquisition" ||
+            l.rel === "http://opds-spec.org/acquisition/open-access",
     );
 }
 
@@ -52,7 +72,9 @@ export function base64Encode(data: FeedEntryData) {
 function isFeedEntryLink(unknownData: unknown): unknownData is FeedEntryLink {
     const data = unknownData as FeedEntryLink;
     return (
-        typeof data.rel === "string" &&
+        (typeof data.rel === "string" ||
+            data.rel === undefined ||
+            data.rel === null) &&
         typeof data.href === "string" &&
         typeof data.type === "string"
     );

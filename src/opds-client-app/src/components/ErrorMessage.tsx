@@ -1,7 +1,7 @@
 interface Props {
-    error: Error;
+    readonly error: Error;
 }
 
-export function ErrorMessage(props: Props) {
-    return <div>Error: {props.error.message}</div>;
+export function ErrorMessage({ error }: Props) {
+    return <div>Error: {error.message}</div>;
 }
