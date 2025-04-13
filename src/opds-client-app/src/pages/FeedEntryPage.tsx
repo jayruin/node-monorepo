@@ -17,6 +17,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Container, Group, NavLink, Stack, Text, Title } from "@mantine/core";
 import DOMPurify from "dompurify";
+import * as htmlEntities from "html-entities";
 import { Navigate, useParams } from "react-router-dom";
 
 export function FeedEntryPage() {
@@ -101,7 +102,9 @@ export function FeedEntryPage() {
                     {data.description ? (
                         <Container
                             dangerouslySetInnerHTML={{
-                                __html: DOMPurify.sanitize(data.description),
+                                __html: DOMPurify.sanitize(
+                                    htmlEntities.decode(data.description),
+                                ),
                             }}
                         ></Container>
                     ) : undefined}
