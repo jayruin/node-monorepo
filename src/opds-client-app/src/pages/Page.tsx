@@ -7,6 +7,6 @@ interface Props {
 export function Page({ title, children }: PropsWithChildren<Props>) {
     useEffect(() => {
         document.title = title;
-    }, []);
+    }, [title]);
     return <>{children}</>;
 }

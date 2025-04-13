@@ -9,8 +9,8 @@ import { v4 as uuidv4 } from "uuid";
 
 const locale = new Intl.Locale(navigator.language);
 
-function isValidString(s: any): s is string {
-    return s && typeof s === "string";
+function isValidString(s: unknown): s is string {
+    return typeof s === "string" && !!s;
 }
 
 async function fetchXml(url: string) {
