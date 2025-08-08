@@ -1,7 +1,15 @@
 export interface FeedData {
     readonly title: string;
     readonly entries: readonly FeedEntryData[];
-    readonly groups: readonly FeedEntryGroup[];
+    readonly groups: readonly FeedGroup[];
+    readonly pagination: FeedPagination;
+}
+
+export interface FeedPagination {
+    readonly first?: string | null;
+    readonly last?: string | null;
+    readonly next?: string | null;
+    readonly previous?: string | null;
 }
 
 export interface FeedEntryData {
@@ -16,16 +24,16 @@ export interface FeedEntryData {
     readonly rights?: string | null;
     readonly subjects?: readonly string[] | null;
     readonly description?: string | null;
-    readonly links: readonly FeedEntryLink[];
+    readonly links: readonly FeedLink[];
 }
 
-export interface FeedEntryLink {
+export interface FeedLink {
     readonly rel?: string | null;
     readonly href: string;
     readonly type: string;
 }
 
-export interface FeedEntryGroup {
+export interface FeedGroup {
     readonly title: string;
     readonly href?: string | null;
     readonly entries: readonly FeedEntryData[];
@@ -69,8 +77,8 @@ export function base64Encode(data: FeedEntryData) {
     return btoa(encodeURIComponent(JSON.stringify(data)));
 }
 
-function isFeedEntryLink(unknownData: unknown): unknownData is FeedEntryLink {
-    const data = unknownData as FeedEntryLink;
+function isFeedEntryLink(unknownData: unknown): unknownData is FeedLink {
+    const data = unknownData as FeedLink;
     return (
         (typeof data.rel === "string" ||
             data.rel === undefined ||

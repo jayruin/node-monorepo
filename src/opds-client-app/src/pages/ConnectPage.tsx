@@ -1,17 +1,16 @@
+import { GoToFeedButton } from "../components/GoToFeedButton";
 import pageStyles from "../styles/page.module.css";
 import { Page } from "./Page";
 import { faPlug } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { TextInput, Center, Button, Select } from "@mantine/core";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Center, Select, TextInput } from "@mantine/core";
+import { useRef, useState } from "react";
 
 export default function ConnectPage() {
     const [url, setUrl] = useState("");
     const versions = ["v1.2", "v2.0"];
     const [version, setVersion] = useState(versions[0]);
-    const navigate = useNavigate();
-    const encodedUrl = btoa(url);
+    const buttonRef = useRef<HTMLButtonElement>(null);
     return (
         <Page title="OPDS Client App">
             <Center className={pageStyles["page-100vh"]}>
@@ -24,10 +23,15 @@ export default function ConnectPage() {
                 <TextInput
                     value={url}
                     onChange={(event) => setUrl(event.currentTarget.value)}
+                    onKeyDown={(event) => {
+                        if (event.key === "Enter") {
+                            buttonRef.current?.click();
+                        }
+                    }}
                 />
-                <Button onClick={() => navigate(`/${version}/${encodedUrl}`)}>
+                <GoToFeedButton ref={buttonRef} version={version} feedUrl={url}>
                     <FontAwesomeIcon icon={faPlug} size="2x" />
-                </Button>
+                </GoToFeedButton>
             </Center>
         </Page>
     );

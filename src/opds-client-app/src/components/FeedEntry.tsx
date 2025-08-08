@@ -1,4 +1,4 @@
-import { base64Encode, FeedEntryData, getNavigationLink } from "../data/feed";
+import { FeedEntryData, base64Encode, getNavigationLink } from "../data/feed";
 import iconStyles from "../styles/icon.module.css";
 import { FeedEntryImage } from "./FeedEntryImage";
 import { faFile, faFolder } from "@fortawesome/free-solid-svg-icons";

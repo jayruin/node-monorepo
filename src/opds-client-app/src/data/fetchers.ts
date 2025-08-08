@@ -1,9 +1,10 @@
 import {
-    canHandle,
     FeedData,
     FeedEntryData,
-    FeedEntryGroup,
-    FeedEntryLink,
+    FeedGroup,
+    FeedLink,
+    FeedPagination,
+    canHandle,
 } from "./feed";
 import { v4 as uuidv4 } from "uuid";
 
@@ -20,6 +21,32 @@ async function fetchXml(url: string) {
     }
     const text = await response.text();
     return new DOMParser().parseFromString(text, "text/xml");
+}
+
+function parseFeedPagination(feedLinks: FeedLink[]): FeedPagination {
+    return {
+        first: feedLinks.find((l) => l?.rel === "first")?.href,
+        last: feedLinks.find((l) => l?.rel === "last")?.href,
+        next: feedLinks.find((l) => l?.rel === "next")?.href,
+        previous: feedLinks.find((l) => l?.rel === "previous")?.href,
+    };
+}
+
+function parseV1_2Link(
+    linkElement: HTMLLinkElement,
+    baseUrl: string,
+): FeedLink | null {
+    const rel = linkElement.getAttribute("rel");
+    const href = linkElement.getAttribute("href");
+    if (!isValidString(href)) {
+        return null;
+    }
+    const type = linkElement.getAttribute("type");
+    if (!isValidString(type)) {
+        return null;
+    }
+    const absoluteHref = new URL(href, baseUrl).toString();
+    return { rel, href: absoluteHref, type };
 }
 
 export async function fetchOpdsV1_2FeedData(url: string): Promise<FeedData> {
@@ -41,19 +68,13 @@ export async function fetchOpdsV1_2FeedData(url: string): Promise<FeedData> {
         if (!isValidString(updated)) {
             continue;
         }
-        const links: FeedEntryLink[] = [];
+        const links: FeedLink[] = [];
         for (const linkElement of element.querySelectorAll("link")) {
-            const rel = linkElement.getAttribute("rel");
-            const href = linkElement.getAttribute("href");
-            if (!isValidString(href)) {
+            const link = parseV1_2Link(linkElement, url);
+            if (!link) {
                 continue;
             }
-            const type = linkElement.getAttribute("type");
-            if (!isValidString(type)) {
-                continue;
-            }
-            const absoluteHref = new URL(href, url).toString();
-            links.push({ rel, href: absoluteHref, type });
+            links.push(link);
         }
         const creators = [
             ...element.querySelectorAll("author"),
@@ -114,7 +135,13 @@ export async function fetchOpdsV1_2FeedData(url: string): Promise<FeedData> {
         }
         entries.push(entry);
     }
-    return { title: feedTitle, entries, groups: [] };
+    const feedLinks = [
+        ...xmlDocument.querySelectorAll<HTMLLinkElement>("feed link"),
+    ]
+        .map((e) => parseV1_2Link(e, url))
+        .filter((l) => !!l);
+    const pagination = parseFeedPagination(feedLinks);
+    return { title: feedTitle, entries, groups: [], pagination };
 }
 
 function parseV2_0StringOrLanguageObject(json: any): string | null {
@@ -128,7 +155,7 @@ function parseV2_0StringOrLanguageObject(json: any): string | null {
           : null;
 }
 
-function parseV2_0Link(jsonLink: any, baseUrl: string): FeedEntryLink | null {
+function parseV2_0Link(jsonLink: any, baseUrl: string): FeedLink | null {
     const rel = jsonLink.rel;
     if (rel && typeof rel !== "string") {
         return null;
@@ -145,17 +172,14 @@ function parseV2_0Link(jsonLink: any, baseUrl: string): FeedEntryLink | null {
     return { rel, href: absoluteHref, type };
 }
 
-function parseV2_0Links(jsonLinks: any, baseUrl: string): FeedEntryLink[] {
+function parseV2_0Links(jsonLinks: any, baseUrl: string): FeedLink[] {
     if (!jsonLinks || !Array.isArray(jsonLinks)) {
         return [];
     }
     return jsonLinks.map((l) => parseV2_0Link(l, baseUrl)).filter((l) => !!l);
 }
 
-function parseV2_0ImageLinks(
-    jsonImages: any,
-    baseUrl: string,
-): FeedEntryLink[] {
+function parseV2_0ImageLinks(jsonImages: any, baseUrl: string): FeedLink[] {
     if (!jsonImages || !Array.isArray(jsonImages)) {
         return [];
     }
@@ -306,7 +330,7 @@ function parseV2_0Groups(jsonGroups: any, baseUrl: string, now: string) {
     if (!jsonGroups || !Array.isArray(jsonGroups)) {
         return [];
     }
-    const groups: FeedEntryGroup[] = [];
+    const groups: FeedGroup[] = [];
     for (const jsonGroup of jsonGroups) {
         const title = parseV2_0StringOrLanguageObject(
             jsonGroup.metadata?.title,
@@ -342,5 +366,7 @@ export async function fetchOpdsV2_0FeedData(url: string): Promise<FeedData> {
     ];
     const jsonGroups = jsonData.groups;
     const groups = parseV2_0Groups(jsonGroups, url, now);
-    return { title: feedTitle, entries, groups };
+    const feedLinks = parseV2_0Links(jsonData.links ?? [], url);
+    const pagination = parseFeedPagination(feedLinks);
+    return { title: feedTitle, entries, groups, pagination };
 }
