@@ -17,7 +17,11 @@ export function FeedEntryImage({ data, fallback, onClick = undefined }: Props) {
             onClick={onClick}
             className={onClick ? hoverStyles["hover-pointer"] : undefined}
         >
-            {imageLink ? <Image src={imageLink.href} /> : fallback}
+            {imageLink ? (
+                <Image src={imageLink.href} fit="contain" />
+            ) : (
+                fallback
+            )}
         </AspectRatio>
     );
 }
