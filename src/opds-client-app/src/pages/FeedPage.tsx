@@ -1,6 +1,7 @@
 import { ErrorMessage } from "../components/ErrorMessage";
 import Feed from "../components/Feed";
 import Loading from "../components/Loading";
+import { NavBar } from "../components/NavBar";
 import { FeedData } from "../data/feed";
 import { Page } from "./Page";
 import { useQuery } from "@tanstack/react-query";
@@ -30,6 +31,7 @@ export function FeedPage({ fetchFeedData, version }: Props) {
     }
     return (
         <Page title={data.title}>
+            <NavBar currentVersion={version} currentUrl={decodedUrl} />
             <Feed data={data} version={version} />
         </Page>
     );
