@@ -5,6 +5,7 @@ on:
       - main
     paths:
       - "**.ts"
+      - "**.tsx"
       - "**.js"
       - "**.json"
       - "**.yml"
